@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tv_update_title"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="有新版本了" />
+
+    <TextView
+        android:id="@+id/tv_update_content"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_margin="10dp"
+        android:lineSpacingExtra="5dp"
+        android:textColor="@android:color/black"
+        android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@id/tv_update_title"
+        tools:text="• 支持文字、贴纸、背景音乐，尽情展现欢乐气氛；
+• 两人视频通话支持实时滤镜，丰富滤镜，多彩心情；
+• 图片编辑新增艺术滤镜，一键打造文艺画风；
+• 资料卡新增点赞排行榜，看好友里谁是魅力之王。" />
+
+    <View
+        android:id="@+id/view_line1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="20dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintTop_toBottomOf="@id/tv_update_content" />
+
+    <TextView
+        android:id="@+id/tv_cancel"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:text="以后再说"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/view_line2"
+        app:layout_constraintTop_toBottomOf="@id/view_line1" />
+
+    <View
+        android:id="@+id/view_line2"
+        android:layout_width="1dp"
+        android:layout_height="44dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintLeft_toRightOf="@id/tv_cancel"
+        app:layout_constraintRight_toLeftOf="@+id/tv_sure"
+        app:layout_constraintTop_toTopOf="@id/tv_cancel" />
+
+    <TextView
+        android:id="@+id/tv_sure"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:text="立即更新"
+        android:textColor="@android:color/holo_blue_light"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintLeft_toRightOf="@id/view_line2"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_cancel" />
+</android.support.constraint.ConstraintLayout>
