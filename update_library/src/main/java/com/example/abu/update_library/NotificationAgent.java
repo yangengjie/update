@@ -9,8 +9,6 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 
-import static android.support.v4.app.NotificationCompat.PRIORITY_DEFAULT;
-
 /**
  * Created by ygj on 2020/8/5.
  */
@@ -103,6 +101,7 @@ public class NotificationAgent {
     public void showDoneNotification(int notifyId, String title, String content, int icon) {
         Intent intent = new Intent("com.example.yiyaoguan111.update");
         intent.putExtra("clickType",NOTIFY_UPDATE_DONE);
+        intent.setClass(mContext,UpdateBroadCastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, NOTIFY_UPDATE_DONE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationManager manager = getNotificationManager();
         NotificationCompat.Builder builder = getNotificationBuilder(title, content, icon)
@@ -117,6 +116,7 @@ public class NotificationAgent {
     public void showErrorNotification(int notifyId, String title, String content, int icon) {
         Intent intent = new Intent("com.example.yiyaoguan111.update");
         intent.putExtra("clickType",NOTIFY_UPDATE_ERROR);
+        intent.setClass(mContext,UpdateBroadCastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, NOTIFY_UPDATE_ERROR, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationManager manager = getNotificationManager();
         NotificationCompat.Builder builder = getNotificationBuilder(title, content, icon)
@@ -129,7 +129,7 @@ public class NotificationAgent {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private NotificationChannel createChannel(NotificationManager manager) {
-        return new NotificationChannel(channelId, channelName, PRIORITY_DEFAULT);
+        return new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
     }
 
 }

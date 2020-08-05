@@ -71,8 +71,10 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
     }
 
     private void doCheck() {
-        if (isCheckUpdate || isDownloading)
+        if (isCheckUpdate || isDownloading) {
+            doFailure(new UpdateError(UpdateError.DOWNLOADING));
             return;
+        }
         mError = null;
         new AsyncTask<Void, Void, Void>() {
 
@@ -109,9 +111,7 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
     }
 
     void doPrompt(boolean downloadDone) {
-        if (updatePromter == null)
-            updatePromter = new DefaultUpdatePromter(mContext);
-        updatePromter.promter(this,downloadDone);
+        updatePromter.promter(this, downloadDone);
     }
 
     void doInstall() {
@@ -125,8 +125,6 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
 
     @Override
     public void setInfo(String info) {
-        if (updateParser == null)
-            updateParser = new DefaultUpdateParser();
         updateInfo = updateParser.parser(info);
     }
 
@@ -145,8 +143,10 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
     }
 
     private void doDownload() {
-        if (isDownloading)
+        if (isDownloading) {
+            doFailure(new UpdateError(UpdateError.DOWNLOADING));
             return;
+        }
         if (updateDownload == null)
             updateDownload = new DefaultUpdateDownloader();
         updateDownload.download(mContext, this, updateInfo.downloadUrl, mTempFile);

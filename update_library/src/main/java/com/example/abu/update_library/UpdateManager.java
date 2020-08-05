@@ -9,7 +9,6 @@ import android.content.Context;
 public class UpdateManager {
 
     private static volatile UpdateManager updateManager;
-
     private Context mContext;
     private String mCheckUrl;
     private IUpdateChecker updateChecker;
@@ -25,7 +24,6 @@ public class UpdateManager {
 
     private UpdateManager(Context mContext) {
         this.mContext = mContext;
-        updateAgent = new UpdateAgent(mContext);
     }
 
 
@@ -89,6 +87,10 @@ public class UpdateManager {
             updateAgent = new UpdateAgent(mContext);
         if (updateChecker == null)
             updateChecker = new DefaultUpdateChecker(postData);
+        if (updateParser == null)
+            updateParser = new DefaultUpdateParser();
+        if (updatePrompter == null)
+            updatePrompter = new DefaultUpdatePromter(mContext);
         updateAgent.setUpdateChecker(updateChecker);
         updateAgent.setmOnFailListener(mOnFailListener);
         updateAgent.setUpdateParser(updateParser);
@@ -98,12 +100,12 @@ public class UpdateManager {
         updateAgent.check();
     }
 
-    public void update(){
+    public void update() {
         if (updateAgent != null)
             updateAgent.update();
     }
 
-    public void install(){
+    public void install() {
         if (updateAgent != null)
             updateAgent.doInstall();
     }
