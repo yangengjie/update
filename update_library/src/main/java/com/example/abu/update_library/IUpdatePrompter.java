@@ -5,5 +5,5 @@ package com.example.abu.update_library;
  */
 
 public interface IUpdatePrompter extends IDownloadAgent{
-    void promter(IUpdateAgent updateAgent);
+    void promter(IUpdateAgent updateAgent,boolean downloadDone);
 }

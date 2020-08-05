@@ -10,9 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-
 /**
  * Created by ygj on 2020/7/29.
  */
@@ -25,6 +22,7 @@ public class DefaultUpdatePromter implements IUpdatePrompter {
     private UpdateInfo updateInfo;
     private TextView tv_sure;
     private UpdateError updateError;
+    private boolean downloadDone;
 
     public DefaultUpdatePromter(Context mContext) {
         this.mContext = mContext;
@@ -32,10 +30,11 @@ public class DefaultUpdatePromter implements IUpdatePrompter {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
-    public void promter(IUpdateAgent updateAgent) {
+    public void promter(IUpdateAgent updateAgent, boolean downloadDone) {
         if (mContext instanceof Activity && (((Activity) mContext).isFinishing() || ((Activity) mContext).isDestroyed()))
             return;
         this.updateAgent = updateAgent;
+        this.downloadDone = downloadDone;
         updateInfo = updateAgent.getInfo();
         if (updateInfo == null)
             return;
@@ -65,6 +64,11 @@ public class DefaultUpdatePromter implements IUpdatePrompter {
         }
         tv_cancel.setOnClickListener(clickListener);
         tv_sure.setOnClickListener(clickListener);
+        if (downloadDone) {
+            tv_sure.setId(R.id.tv_install);
+            tv_sure.setText("安装");
+        }
+
         return view;
     }
 
@@ -83,12 +87,11 @@ public class DefaultUpdatePromter implements IUpdatePrompter {
 
     @Override
     public void onFinish() {
-        if (updateError != null && updateError.isError() && tv_sure != null) {
+        if (updateError != null && updateInfo.isForced && updateError.isError() && tv_sure != null) {
             tv_sure.setId(R.id.tv_restart);
             tv_sure.setText("下载失败，重新下载");
-        } else if (alertDialog != null) {
+        } else if (alertDialog != null)
             alertDialog.dismiss();
-        }
     }
 
     @Override

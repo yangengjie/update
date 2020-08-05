@@ -23,9 +23,18 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
     private UpdateError mError;
     private boolean isDownloading;
     private boolean isCheckUpdate;
+    private NotificationAgent notificationAgent;
+    private int smallIcon;
 
-    public UpdateAgent(Context mContext, String checkUrl) {
+    public UpdateAgent(Context mContext) {
         this.mContext = mContext;
+        notificationAgent = new NotificationAgent.Builder(mContext)
+                .setChannelId("update")
+                .setChannelName("更新")
+                .create();
+    }
+
+    public void setCheckUrl(String checkUrl) {
         this.checkUrl = checkUrl;
     }
 
@@ -49,6 +58,10 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
         this.updateDownload = updateDownload;
     }
 
+    public void setSmallIcon(int smallIcon) {
+        this.smallIcon = smallIcon;
+    }
+
     public void check() {
         if (UpdateUtil.hasNetWork(mContext)) {
             doCheck();
@@ -58,9 +71,9 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
     }
 
     private void doCheck() {
-        if (isCheckUpdate||isDownloading)
+        if (isCheckUpdate || isDownloading)
             return;
-        mError=null;
+        mError = null;
         new AsyncTask<Void, Void, Void>() {
 
             @Override
@@ -90,19 +103,15 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
             } else {
                 mTempFile = new File(mContext.getExternalCacheDir(), String.format("yiyaoguan%d", updateInfo.versionCode));
                 apkFile = new File(mContext.getExternalCacheDir(), String.format("yiyaoguan%d.apk", updateInfo.versionCode));
-                if (UpdateUtil.isApkExist(apkFile)) {
-                    doInstall();
-                } else {
-                    doPrompt();
-                }
+                doPrompt(UpdateUtil.isApkExist(apkFile));
             }
         }
     }
 
-    void doPrompt() {
+    void doPrompt(boolean downloadDone) {
         if (updatePromter == null)
             updatePromter = new DefaultUpdatePromter(mContext);
-        updatePromter.promter(this);
+        updatePromter.promter(this,downloadDone);
     }
 
     void doInstall() {
@@ -147,11 +156,15 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
     public void onStart() {
         updatePromter.onStart();
         isDownloading = true;
-        mError=null;
+        mError = null;
+        if (!updateInfo.isForced)
+            notificationAgent.showNotify(NotificationAgent.UPDATE_NOTIFY_ID, "开始下载", "可稍后查看下载进度", smallIcon);
     }
 
     @Override
     public void onProgress(int progress) {
+        if (!updateInfo.isForced)
+            notificationAgent.showProgressNotification(NotificationAgent.UPDATE_NOTIFY_ID, "正在下载新版本", progress + "%", smallIcon, 100, progress);
         updatePromter.onProgress(progress);
     }
 
@@ -160,9 +173,16 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
         isDownloading = false;
         updatePromter.onFinish();
         if (mError == null && mTempFile.renameTo(apkFile)) {
-            doInstall();
-        } else if (mOnFailListener != null)
-            mOnFailListener.onFail(mError);
+            if (updateInfo.isForced)
+                doInstall();
+            else
+                notificationAgent.showDoneNotification(NotificationAgent.UPDATE_NOTIFY_ID, "下载完成", "点击进行安装", smallIcon);
+        } else {
+            if (mOnFailListener != null)
+                mOnFailListener.onFail(mError);
+            if (!updateInfo.isForced)
+                notificationAgent.showErrorNotification(NotificationAgent.UPDATE_NOTIFY_ID, "下载出错", "点击继续下载", smallIcon);
+        }
     }
 
     @Override

@@ -8,67 +8,103 @@ import android.content.Context;
 
 public class UpdateManager {
 
+    private static volatile UpdateManager updateManager;
 
-    public static class Builder {
-        private Context mContext;
-        private String mCheckUrl;
-        private IUpdateChecker updateChecker;
-        private OnDownloadListener onDownloadListener;
-        private OnFailureListener mOnFailListener;
-        private IUpdateParser updateParser;
-        private IUpdatePrompter updatePrompter;
-        private IUpdateDownload updateDownload;
+    private Context mContext;
+    private String mCheckUrl;
+    private IUpdateChecker updateChecker;
+    private OnDownloadListener onDownloadListener;
+    private OnFailureListener mOnFailListener;
+    private IUpdateParser updateParser;
+    private IUpdatePrompter updatePrompter;
+    private IUpdateDownload updateDownload;
+    private byte[] postData;
+    private int smallIcon;
+    private UpdateAgent updateAgent;
 
-        public Builder(Context mContext) {
-            this.mContext = mContext;
-        }
 
-        public Builder setCheckUrl(String checkUrl) {
-            this.mCheckUrl = checkUrl;
-            return this;
-        }
-
-        public Builder setDownloadListener(OnDownloadListener onDownloadListener) {
-            this.onDownloadListener = onDownloadListener;
-            return this;
-        }
-
-        public Builder setOnFailListener(OnFailureListener onFailListener) {
-            this.mOnFailListener = onFailListener;
-            return this;
-        }
-
-        public Builder setUpdateChecker(IUpdateChecker updateChecker) {
-            this.updateChecker = updateChecker;
-            return this;
-        }
-
-        public Builder setUpdateParser(IUpdateParser updateParser) {
-            this.updateParser = updateParser;
-            return this;
-        }
-
-        public Builder setUpdatePromter(IUpdatePrompter updatePromter) {
-            this.updatePrompter = updatePromter;
-            return this;
-        }
-
-        public Builder setUpdateDownload(IUpdateDownload updateDownload){
-            this.updateDownload=updateDownload;
-            return this;
-        }
-
-        public void check() {
-            UpdateAgent updateAgent = new UpdateAgent(mContext, mCheckUrl);
-            if (updateChecker == null)
-                updateChecker = new DefaultUpdateChecker();
-            updateAgent.setUpdateChecker(updateChecker);
-            updateAgent.setmOnFailListener(mOnFailListener);
-            updateAgent.setUpdateParser(updateParser);
-            updateAgent.setUpdatePromter(updatePrompter);
-            updateAgent.check();
-        }
+    private UpdateManager(Context mContext) {
+        this.mContext = mContext;
+        updateAgent = new UpdateAgent(mContext);
     }
 
 
+    public static UpdateManager getInstance(Context mContext) {
+        if (updateManager == null) {
+            synchronized (UpdateManager.class) {
+                if (updateManager == null)
+                    updateManager = new UpdateManager(mContext);
+            }
+        }
+        return updateManager;
+    }
+
+    public UpdateManager setCheckUrl(String mCheckUrl) {
+        this.mCheckUrl = mCheckUrl;
+        return this;
+    }
+
+    public UpdateManager setDownloadListener(OnDownloadListener onDownloadListener) {
+        this.onDownloadListener = onDownloadListener;
+        return this;
+    }
+
+    public UpdateManager setOnFailListener(OnFailureListener onFailListener) {
+        this.mOnFailListener = onFailListener;
+        return this;
+    }
+
+    public UpdateManager setUpdateChecker(IUpdateChecker updateChecker) {
+        this.updateChecker = updateChecker;
+        return this;
+    }
+
+    public UpdateManager setUpdateParser(IUpdateParser updateParser) {
+        this.updateParser = updateParser;
+        return this;
+    }
+
+    public UpdateManager setUpdatePromter(IUpdatePrompter updatePromter) {
+        this.updatePrompter = updatePromter;
+        return this;
+    }
+
+    public UpdateManager setUpdateDownload(IUpdateDownload updateDownload) {
+        this.updateDownload = updateDownload;
+        return this;
+    }
+
+    public UpdateManager setPostData(byte[] postData) {
+        this.postData = postData;
+        return this;
+    }
+
+    public UpdateManager setSmallIcon(int smallIcon) {
+        this.smallIcon = smallIcon;
+        return this;
+    }
+
+    public void check() {
+        if (updateAgent == null)
+            updateAgent = new UpdateAgent(mContext);
+        if (updateChecker == null)
+            updateChecker = new DefaultUpdateChecker(postData);
+        updateAgent.setUpdateChecker(updateChecker);
+        updateAgent.setmOnFailListener(mOnFailListener);
+        updateAgent.setUpdateParser(updateParser);
+        updateAgent.setUpdatePromter(updatePrompter);
+        updateAgent.setSmallIcon(smallIcon);
+        updateAgent.setCheckUrl(mCheckUrl);
+        updateAgent.check();
+    }
+
+    public void update(){
+        if (updateAgent != null)
+            updateAgent.update();
+    }
+
+    public void install(){
+        if (updateAgent != null)
+            updateAgent.doInstall();
+    }
 }

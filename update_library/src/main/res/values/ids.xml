@@ -2,4 +2,5 @@
 <resources>
     <item name="tv_restart" type="id" />
     <item name="tv_sure" type="id" />
+    <item name="tv_install" type="id" />
 </resources>

@@ -1,8 +1,7 @@
 package com.example.abu.updatedemo;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,8 +20,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void checkUpdate(View view) {
-        new UpdateManager.Builder(this)
+        UpdateManager.getInstance(this)
                 .setCheckUrl("https://www.baidu.com/")
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setOnFailListener(new OnFailureListener() {
                     @Override
                     public void onFail(UpdateError updateError) {
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                         UpdateInfo info = new UpdateInfo();
                         info.updateTitle="版本更新";
                         info.hasUpdate = true;
-                        info.isForced=true;
+                        info.isForced=false;
                         info.updateContent = "• 支持文字、贴纸、背景音乐，尽情展现欢乐气氛；\n• 两人视频通话支持实时滤镜，丰富滤镜，多彩心情；\n• 图片编辑新增艺术滤镜，一键打造文艺画风；\n• 资料卡新增点赞排行榜，看好友里谁是魅力之王。• 支持文字、贴纸、背景音乐，尽情展现欢乐气氛；\n• 两人视频通话支持实时滤镜，丰富滤镜，多彩心情；\n• 图片编辑新增艺术滤镜，一键打造文艺画风；\n• 资料卡新增点赞排行榜，看好友里谁是魅力之王。";
                         info.versionCode = 587;
                         info.versionName = "v5.8.7";
@@ -45,6 +45,5 @@ public class MainActivity extends AppCompatActivity {
                         return info;
                     }
                 }).check();
-
     }
 }

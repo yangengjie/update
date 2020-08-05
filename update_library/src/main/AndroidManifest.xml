@@ -20,5 +20,10 @@
                 tools:replace="name,resource" />
         </provider>
         <activity android:name=".AndroidOPermissionActivity" />
+        <receiver android:name=".UpdateBroadCastReceiver">
+            <intent-filter>
+                <action android:name="com.example.yiyaoguan111.update" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

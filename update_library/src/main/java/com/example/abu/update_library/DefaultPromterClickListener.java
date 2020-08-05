@@ -31,6 +31,8 @@ public class DefaultPromterClickListener implements View.OnClickListener {
             v.setId(R.id.tv_sure);
             ((TextView) v).setText("立即更新");
             updateAgent.update();
+        }else if(v.getId()==R.id.tv_install){
+            updateAgent.update();
         }
         if (alertDialog != null && autoDismiss && !updateAgent.getInfo().isForced)
             alertDialog.dismiss();
