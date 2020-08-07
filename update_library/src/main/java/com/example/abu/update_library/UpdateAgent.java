@@ -16,6 +16,7 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
     private UpdateInfo updateInfo;
     private OnFailureListener mOnFailListener;
     private IUpdateParser updateParser;
+    private OnPromterShowListener onPromterShowListener;
     private IUpdatePrompter updatePromter;
     private File apkFile;
     private File mTempFile;
@@ -25,6 +26,9 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
     private boolean isCheckUpdate;
     private NotificationAgent notificationAgent;
     private int smallIcon;
+    private boolean isManual;
+    private boolean isIgnore;
+
 
     public UpdateAgent() {
     }
@@ -45,6 +49,10 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
         this.updateChecker = updateChecker;
     }
 
+    public void setManual(boolean manual) {
+        isManual = manual;
+    }
+
     public void setmOnFailListener(OnFailureListener mOnFailListener) {
         this.mOnFailListener = mOnFailListener;
     }
@@ -57,12 +65,20 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
         this.updatePromter = updatePromter;
     }
 
+    public void setOnPromterShowListener(OnPromterShowListener onPromterShowListener) {
+        this.onPromterShowListener = onPromterShowListener;
+    }
+
     public void setUpdateDownload(IUpdateDownload updateDownload) {
         this.updateDownload = updateDownload;
     }
 
     public void setSmallIcon(int smallIcon) {
         this.smallIcon = smallIcon;
+    }
+
+    public void setIgnore(boolean ignore) {
+        isIgnore = ignore;
     }
 
     public void check() {
@@ -98,13 +114,16 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
 
     private void doCheckFinish() {
         isCheckUpdate = false;
-        if (mError != null)
-            doFailure(mError);
-        else {
+        if (mError != null) {
+            checkUpdateFail(mError);
+        } else {
             if (updateInfo == null) {
-                doFailure(new UpdateError(UpdateError.CHECK_UNKNOWN));
+                checkUpdateFail(new UpdateError(UpdateError.CHECK_UNKNOWN));
             } else if (!updateInfo.hasUpdate) {
-                doFailure(new UpdateError(UpdateError.UPDATE_NO_NEWER));
+                checkUpdateFail(new UpdateError(UpdateError.UPDATE_NO_NEWER));
+            } else if (isIgnore && !updateInfo.isForced && !isManual) {
+                if (onPromterShowListener != null)
+                    onPromterShowListener.onPromterShowFail();
             } else {
                 mTempFile = new File(mContext.getExternalCacheDir(), String.format("yiyaoguan%d", updateInfo.versionCode));
                 apkFile = new File(mContext.getExternalCacheDir(), String.format("yiyaoguan%d.apk", updateInfo.versionCode));
@@ -113,16 +132,31 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
         }
     }
 
+    /**
+     * 更新检查失败
+     *
+     * @param updateError
+     */
+    private void checkUpdateFail(UpdateError updateError) {
+        if (isManual)
+            doFailure(updateError);
+        if (onPromterShowListener != null)
+            onPromterShowListener.onPromterShowFail();
+    }
+
     void doPrompt(boolean downloadDone) {
-        updatePromter.promter(this, downloadDone);
+        updatePromter.promter(this, downloadDone, onPromterShowListener);
     }
 
     void doInstall() {
+        if (updatePromter.getDialog() != null) {
+            updatePromter.getDialog().dismiss();
+        }
         InstallUtil.installApk(mContext, apkFile.getAbsolutePath());
     }
 
     public void doFailure(UpdateError updateError) {
-        if (mOnFailListener != null && updateError.isError())
+        if (mOnFailListener != null)
             mOnFailListener.onFail(updateError);
     }
 
@@ -174,7 +208,8 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
         isDownloading = false;
         updatePromter.onFinish();
         if (mError == null && mTempFile.renameTo(apkFile)) {
-            doInstall();
+            if (!updateInfo.isForced)
+                doInstall();
             notificationAgent.showDoneNotification(NotificationAgent.UPDATE_NOTIFY_ID, "下载完成", "点击进行安装", smallIcon);
         } else {
             if (mOnFailListener != null)

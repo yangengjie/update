@@ -14,12 +14,15 @@ public class UpdateManager {
     private IUpdateChecker updateChecker;
     private OnDownloadListener onDownloadListener;
     private OnFailureListener mOnFailListener;
+    private OnPromterShowListener onPromterShowListener;
     private IUpdateParser updateParser;
     private IUpdatePrompter updatePrompter;
     private IUpdateDownload updateDownload;
     private byte[] postData;
     private int smallIcon;
     private UpdateAgent updateAgent;
+    private boolean isManaual = false;
+    private boolean isIgnore = false;
 
     private UpdateManager() {
 
@@ -46,8 +49,18 @@ public class UpdateManager {
         return this;
     }
 
+    public UpdateManager setManaual(boolean manaual) {
+        isManaual = manaual;
+        return this;
+    }
+
     public UpdateManager setDownloadListener(OnDownloadListener onDownloadListener) {
         this.onDownloadListener = onDownloadListener;
+        return this;
+    }
+
+    public UpdateManager setOnPromterShowListener(OnPromterShowListener onPromterShowListener) {
+        this.onPromterShowListener = onPromterShowListener;
         return this;
     }
 
@@ -86,6 +99,11 @@ public class UpdateManager {
         return this;
     }
 
+    public UpdateManager setIgnore(boolean ignore) {
+        isIgnore = ignore;
+        return this;
+    }
+
     public void check() {
         if (updateAgent == null)
             updateAgent = new UpdateAgent();
@@ -99,11 +117,14 @@ public class UpdateManager {
         updatePrompter.setContext(mContext);
         updateAgent.setUpdateChecker(updateChecker);
         updateAgent.setmOnFailListener(mOnFailListener);
+        updateAgent.setOnPromterShowListener(onPromterShowListener);
         updateAgent.setUpdateParser(updateParser);
         updateAgent.setUpdatePromter(updatePrompter);
         updateAgent.setSmallIcon(smallIcon);
         updateAgent.setCheckUrl(mCheckUrl);
         updateAgent.setmContext(mContext);
+        updateAgent.setManual(isManaual);
+        updateAgent.setIgnore(isIgnore);
         updateAgent.check();
     }
 
@@ -116,4 +137,5 @@ public class UpdateManager {
         if (updateAgent != null)
             updateAgent.doInstall();
     }
+
 }

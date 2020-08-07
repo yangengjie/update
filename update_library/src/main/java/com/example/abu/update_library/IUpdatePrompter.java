@@ -1,12 +1,16 @@
 package com.example.abu.update_library;
 
+import android.app.Dialog;
 import android.content.Context;
 
 /**
  * Created by ygj on 2020/7/29.
  */
 
-public interface IUpdatePrompter extends IDownloadAgent{
+public interface IUpdatePrompter extends IDownloadAgent {
     void setContext(Context mContext);
-    void promter(IUpdateAgent updateAgent,boolean downloadDone);
+
+    void promter(IUpdateAgent updateAgent, boolean downloadDone, OnPromterShowListener onPromterShowListener);
+
+    Dialog getDialog();
 }

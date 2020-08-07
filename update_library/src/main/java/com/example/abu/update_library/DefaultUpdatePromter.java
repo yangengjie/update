@@ -3,6 +3,7 @@ package com.example.abu.update_library;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -35,7 +36,7 @@ public class DefaultUpdatePromter implements IUpdatePrompter {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
-    public void promter(IUpdateAgent updateAgent, boolean downloadDone) {
+    public void promter(IUpdateAgent updateAgent, boolean downloadDone, OnPromterShowListener onPromterShowListener) {
         if (mContext instanceof Activity && (((Activity) mContext).isFinishing() || ((Activity) mContext).isDestroyed()))
             return;
         this.updateAgent = updateAgent;
@@ -49,12 +50,17 @@ public class DefaultUpdatePromter implements IUpdatePrompter {
                 .setCancelable(false)
                 .create();
         clickListener.setAlertDialog(alertDialog);
-        alertDialog.show();
+        if (onPromterShowListener != null)
+            onPromterShowListener.onPromterShow(alertDialog);
         if (alertDialog.getWindow() != null) {
             alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0x00000000));
             alertDialog.getWindow().setLayout(MATCH_PARENT, WRAP_CONTENT);
         }
+    }
 
+    @Override
+    public Dialog getDialog() {
+        return alertDialog;
     }
 
     public View getCustomView(DefaultPromterClickListener clickListener) {
@@ -97,15 +103,23 @@ public class DefaultUpdatePromter implements IUpdatePrompter {
 
     @Override
     public void onFinish() {
-        if (updateError != null && updateInfo.isForced && updateError.isError() && tv_sure != null) {
-            tv_sure.setId(R.id.tv_restart);
-            tv_sure.setText("下载失败，重新下载");
-        } else if (alertDialog != null)
+        if (updateInfo.isForced) {
+            if (updateError != null && updateError.isError()) {
+                tv_sure.setId(R.id.tv_restart);
+                tv_sure.setText("下载失败，重新下载");
+            } else {
+                tv_sure.setId(R.id.tv_install);
+                tv_sure.setText("安装");
+            }
+        } else if (alertDialog != null) {
             alertDialog.dismiss();
+        }
     }
 
     @Override
     public void onError(UpdateError updateError) {
         this.updateError = updateError;
     }
+
+
 }

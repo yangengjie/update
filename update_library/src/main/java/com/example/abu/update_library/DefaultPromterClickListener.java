@@ -25,16 +25,19 @@ public class DefaultPromterClickListener implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.tv_sure) {
+        if (v.getId() == R.id.tv_sure) { //&& !updateAgent.getInfo().isForced
+            autoDismiss = !updateAgent.getInfo().isForced;
             updateAgent.update();
         } else if (v.getId() == R.id.tv_restart) {
             v.setId(R.id.tv_sure);
             ((TextView) v).setText("立即更新");
             updateAgent.update();
-        }else if(v.getId()==R.id.tv_install){
+            autoDismiss = !updateAgent.getInfo().isForced;
+        } else if (v.getId() == R.id.tv_install) {
             updateAgent.update();
+            autoDismiss = updateAgent.getInfo().isForced;
         }
-        if (alertDialog != null && autoDismiss && !updateAgent.getInfo().isForced)
+        if (alertDialog != null && autoDismiss)
             alertDialog.dismiss();
     }
 }

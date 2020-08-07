@@ -22,8 +22,8 @@ public class DefaultUpdateChecker implements IUpdateChecker {
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) new URL(checkUrl).openConnection();
-            connection.setConnectTimeout(15000);
-            connection.setReadTimeout(15000);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Connection", "Keep-Alive");
             //设置是否从httpUrlConnection读入，默认情况下是true; 用于connection.getInputStream().read()
