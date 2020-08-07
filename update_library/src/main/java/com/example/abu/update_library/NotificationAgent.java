@@ -19,6 +19,8 @@ public class NotificationAgent {
     public static final int UPDATE_NOTIFY_ID = 3010;
     public static final int NOTIFY_UPDATE_DONE = 1;
     public static final int NOTIFY_UPDATE_ERROR = 2;
+    private NotificationChannel channel;
+    private NotificationCompat.Builder builder;
 
     private NotificationAgent(Context mContext) {
         this.mContext = mContext;
@@ -55,20 +57,24 @@ public class NotificationAgent {
             NotificationAgent notificationAgent = new NotificationAgent(mContext);
             notificationAgent.setChannelId(channelId);
             notificationAgent.setChannelName(channelName);
+            notificationAgent.create();
             return notificationAgent;
         }
+    }
+
+    private void create() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            this.channel = createChannel(getNotificationManager());
+        builder = getNotificationBuilder();
     }
 
     public NotificationManager getNotificationManager() {
         return (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
-    public NotificationCompat.Builder getNotificationBuilder(String title, String content, int icon) {
+    public NotificationCompat.Builder getNotificationBuilder() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, channelId);
-        builder.setSmallIcon(icon)
-                .setContentTitle(title)
-                .setContentText(content)
-                .setWhen(System.currentTimeMillis())
+        builder.setWhen(System.currentTimeMillis())
                 //正在交互
                 .setOngoing(true)
                 //不能删除
@@ -78,9 +84,9 @@ public class NotificationAgent {
 
     public void showNotify(int notifyId, String title, String content, int icon) {
         NotificationManager manager = getNotificationManager();
-        NotificationCompat.Builder builder = getNotificationBuilder(title, content, icon);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            manager.createNotificationChannel(createChannel(manager));
+        builder.setSmallIcon(icon)
+                .setContentTitle(title)
+                .setContentText(content);
         manager.notify(notifyId, builder.build());
     }
 
@@ -88,48 +94,52 @@ public class NotificationAgent {
     public void showProgressNotification(int notifyId, String title, String content, int icon,
                                          int max, int progress) {
         NotificationManager manager = getNotificationManager();
-        NotificationCompat.Builder builder = getNotificationBuilder(title, content, icon);
         //indeterminate:true表示不确定进度，false表示确定进度
         //当下载进度没有获取到content-length时，使用不确定进度条
-        builder.setProgress(max, progress, max == -1);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            manager.createNotificationChannel(createChannel(manager));
+        builder.setSmallIcon(icon)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setProgress(max, progress, max == -1);
         manager.notify(notifyId, builder.build());
     }
 
 
     public void showDoneNotification(int notifyId, String title, String content, int icon) {
         Intent intent = new Intent("com.example.yiyaoguan111.update");
-        intent.putExtra("clickType",NOTIFY_UPDATE_DONE);
-        intent.setClass(mContext,UpdateBroadCastReceiver.class);
+        intent.putExtra("clickType", NOTIFY_UPDATE_DONE);
+        intent.setClass(mContext, UpdateBroadCastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, NOTIFY_UPDATE_DONE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationManager manager = getNotificationManager();
-        NotificationCompat.Builder builder = getNotificationBuilder(title, content, icon)
-                .setContentIntent(pendingIntent);
-        builder.setAutoCancel(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            manager.createNotificationChannel(createChannel(manager));
+        builder.setSmallIcon(icon)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .setProgress(100, 100, false);
         manager.notify(notifyId, builder.build());
 
     }
 
     public void showErrorNotification(int notifyId, String title, String content, int icon) {
         Intent intent = new Intent("com.example.yiyaoguan111.update");
-        intent.putExtra("clickType",NOTIFY_UPDATE_ERROR);
-        intent.setClass(mContext,UpdateBroadCastReceiver.class);
+        intent.putExtra("clickType", NOTIFY_UPDATE_ERROR);
+        intent.setClass(mContext, UpdateBroadCastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, NOTIFY_UPDATE_ERROR, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationManager manager = getNotificationManager();
-        NotificationCompat.Builder builder = getNotificationBuilder(title, content, icon)
-                .setContentIntent(pendingIntent);
-        builder.setAutoCancel(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            manager.createNotificationChannel(createChannel(manager));
+        builder.setSmallIcon(icon)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setAutoCancel(true).
+                setContentIntent(pendingIntent);
         manager.notify(notifyId, builder.build());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private NotificationChannel createChannel(NotificationManager manager) {
-        return new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
+        if (manager != null)
+            manager.createNotificationChannel(channel);
+        return channel;
     }
 
 }

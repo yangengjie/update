@@ -18,9 +18,9 @@ public class UpdateBroadCastReceiver extends BroadcastReceiver {
         if (intent != null) {
             int clickType = intent.getIntExtra("clickType", -1);
             if (clickType == NOTIFY_UPDATE_DONE) {
-                UpdateManager.getInstance(context).install();
+                UpdateManager.getInstance().install();
             } else if (clickType == NOTIFY_UPDATE_ERROR) {
-                UpdateManager.getInstance(context).update();
+                UpdateManager.getInstance().update();
             }
         }
     }

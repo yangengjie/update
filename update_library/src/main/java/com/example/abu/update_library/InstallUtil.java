@@ -1,17 +1,17 @@
 package com.example.abu.update_library;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.Settings;
 import android.support.annotation.RequiresApi;
-import android.support.v4.content.FileProvider;
 
 import java.io.File;
+
+import static android.widget.ListPopupWindow.MATCH_PARENT;
+import static android.widget.ListPopupWindow.WRAP_CONTENT;
 
 /**
  * Created by ygj on 2020/7/30.
@@ -19,15 +19,15 @@ import java.io.File;
 
 public class InstallUtil {
 
-    public static void installApk(Context context,String apkPath){
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+    public static void installApk(Context context, String apkPath) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //>8.0
-            startInstallO(context,apkPath);
-        }else if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
+            startInstallO(context, apkPath);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             //>7.0
-            startInstallN(context,apkPath);
-        }else{
-            startInstall(context,apkPath);
+            startInstallN(context, apkPath);
+        } else {
+            startInstall(context, apkPath);
         }
     }
 
@@ -37,6 +37,7 @@ public class InstallUtil {
         install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(install);
     }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     private static void startInstallN(Context context, String apkPath) {
         Uri uriForFile = UpdateFileProvider.getUriForFile(context, context.getPackageName() + ".fileProvider", new File(apkPath));
@@ -46,22 +47,29 @@ public class InstallUtil {
         install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(install);
     }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     private static void startInstallO(final Context context, final String apkPath) {
         boolean isGranted = context.getPackageManager().canRequestPackageInstalls();
-        if(isGranted) startInstallN(context,apkPath);
-        else new AlertDialog.Builder(context)
-                .setCancelable(false)
-                .setTitle("安装应用需要打开未知来源权限，请去设置中开启权限")
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface d, int w) {
-                        Intent intent=new Intent(context,AndroidOPermissionActivity.class);
-                        intent.putExtra("apkPath",apkPath);
-                        context.startActivity(intent);
+        if (isGranted) startInstallN(context, apkPath);
+        else {
+            AlertDialog alertDialog = new AlertDialog.Builder(context)
+                    .setCancelable(false)
+                    .setTitle("安装应用需要打开未知来源权限，请去设置中开启权限")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface d, int w) {
+                            Intent intent = new Intent(context, AndroidOPermissionActivity.class);
+                            intent.putExtra("apkPath", apkPath);
+                            context.startActivity(intent);
 
-                    }
-                })
-                .show();
+                        }
+                    })
+                    .show();
+            if (alertDialog.getWindow() != null) {
+                alertDialog.getWindow().setLayout(MATCH_PARENT,WRAP_CONTENT);
+            }
+
+        }
 
     }
 

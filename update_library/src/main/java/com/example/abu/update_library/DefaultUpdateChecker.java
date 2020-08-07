@@ -11,7 +11,9 @@ import java.net.URL;
 public class DefaultUpdateChecker implements IUpdateChecker {
     private byte[] postData;
 
-    public DefaultUpdateChecker(byte[] postData) {
+
+    @Override
+    public void setPostData(byte[] postData) {
         this.postData = postData;
     }
 
@@ -23,7 +25,7 @@ public class DefaultUpdateChecker implements IUpdateChecker {
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(15000);
             connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Connection","Keep-Alive");
+            connection.setRequestProperty("Connection", "Keep-Alive");
             //设置是否从httpUrlConnection读入，默认情况下是true; 用于connection.getInputStream().read()
             connection.setDoInput(true);
             if (postData == null)

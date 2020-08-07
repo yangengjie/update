@@ -5,5 +5,7 @@ package com.example.abu.update_library;
  */
 
 public interface IUpdateChecker {
-    void check(ICheckerAgent checkerAgent,String checkUrl);
+    void setPostData(byte[] postData);
+
+    void check(ICheckerAgent checkerAgent, String checkUrl);
 }

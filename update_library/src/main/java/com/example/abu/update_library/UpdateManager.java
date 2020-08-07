@@ -21,20 +21,24 @@ public class UpdateManager {
     private int smallIcon;
     private UpdateAgent updateAgent;
 
+    private UpdateManager() {
 
-    private UpdateManager(Context mContext) {
-        this.mContext = mContext;
     }
 
 
-    public static UpdateManager getInstance(Context mContext) {
+    public static UpdateManager getInstance() {
         if (updateManager == null) {
             synchronized (UpdateManager.class) {
                 if (updateManager == null)
-                    updateManager = new UpdateManager(mContext);
+                    updateManager = new UpdateManager();
             }
         }
         return updateManager;
+    }
+
+    public UpdateManager setmContext(Context mContext) {
+        this.mContext = mContext;
+        return this;
     }
 
     public UpdateManager setCheckUrl(String mCheckUrl) {
@@ -84,19 +88,22 @@ public class UpdateManager {
 
     public void check() {
         if (updateAgent == null)
-            updateAgent = new UpdateAgent(mContext);
+            updateAgent = new UpdateAgent();
         if (updateChecker == null)
-            updateChecker = new DefaultUpdateChecker(postData);
+            updateChecker = new DefaultUpdateChecker();
+        updateChecker.setPostData(postData);
         if (updateParser == null)
             updateParser = new DefaultUpdateParser();
         if (updatePrompter == null)
-            updatePrompter = new DefaultUpdatePromter(mContext);
+            updatePrompter = new DefaultUpdatePromter();
+        updatePrompter.setContext(mContext);
         updateAgent.setUpdateChecker(updateChecker);
         updateAgent.setmOnFailListener(mOnFailListener);
         updateAgent.setUpdateParser(updateParser);
         updateAgent.setUpdatePromter(updatePrompter);
         updateAgent.setSmallIcon(smallIcon);
         updateAgent.setCheckUrl(mCheckUrl);
+        updateAgent.setmContext(mContext);
         updateAgent.check();
     }
 

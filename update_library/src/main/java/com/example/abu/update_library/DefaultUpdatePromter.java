@@ -4,11 +4,15 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+
+import static android.widget.ListPopupWindow.MATCH_PARENT;
+import static android.widget.ListPopupWindow.WRAP_CONTENT;
 
 /**
  * Created by ygj on 2020/7/29.
@@ -24,7 +28,8 @@ public class DefaultUpdatePromter implements IUpdatePrompter {
     private UpdateError updateError;
     private boolean downloadDone;
 
-    public DefaultUpdatePromter(Context mContext) {
+    @Override
+    public void setContext(Context mContext) {
         this.mContext = mContext;
     }
 
@@ -45,6 +50,11 @@ public class DefaultUpdatePromter implements IUpdatePrompter {
                 .create();
         clickListener.setAlertDialog(alertDialog);
         alertDialog.show();
+        if (alertDialog.getWindow() != null) {
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0x00000000));
+            alertDialog.getWindow().setLayout(MATCH_PARENT, WRAP_CONTENT);
+        }
+
     }
 
     public View getCustomView(DefaultPromterClickListener clickListener) {

@@ -19,7 +19,9 @@
                 android:resource="@xml/update_provider_paths"
                 tools:replace="name,resource" />
         </provider>
-        <activity android:name=".AndroidOPermissionActivity" />
+        <activity
+            android:name=".AndroidOPermissionActivity"
+            android:theme="@style/app_transparent_activity" />
         <receiver android:name=".UpdateBroadCastReceiver">
             <intent-filter>
                 <action android:name="com.example.yiyaoguan111.update" />

@@ -26,7 +26,10 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
     private NotificationAgent notificationAgent;
     private int smallIcon;
 
-    public UpdateAgent(Context mContext) {
+    public UpdateAgent() {
+    }
+
+    public void setmContext(Context mContext) {
         this.mContext = mContext;
         notificationAgent = new NotificationAgent.Builder(mContext)
                 .setChannelId("update")
@@ -157,14 +160,12 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
         updatePromter.onStart();
         isDownloading = true;
         mError = null;
-        if (!updateInfo.isForced)
-            notificationAgent.showNotify(NotificationAgent.UPDATE_NOTIFY_ID, "开始下载", "可稍后查看下载进度", smallIcon);
+        notificationAgent.showNotify(NotificationAgent.UPDATE_NOTIFY_ID, "开始下载", "可稍后查看下载进度", smallIcon);
     }
 
     @Override
     public void onProgress(int progress) {
-        if (!updateInfo.isForced)
-            notificationAgent.showProgressNotification(NotificationAgent.UPDATE_NOTIFY_ID, "正在下载新版本", progress + "%", smallIcon, 100, progress);
+        notificationAgent.showProgressNotification(NotificationAgent.UPDATE_NOTIFY_ID, "正在下载新版本", progress + "%", smallIcon, 100, progress);
         updatePromter.onProgress(progress);
     }
 
@@ -173,15 +174,12 @@ public class UpdateAgent implements ICheckerAgent, IUpdateAgent, IDownloadAgent 
         isDownloading = false;
         updatePromter.onFinish();
         if (mError == null && mTempFile.renameTo(apkFile)) {
-            if (updateInfo.isForced)
-                doInstall();
-            else
-                notificationAgent.showDoneNotification(NotificationAgent.UPDATE_NOTIFY_ID, "下载完成", "点击进行安装", smallIcon);
+            doInstall();
+            notificationAgent.showDoneNotification(NotificationAgent.UPDATE_NOTIFY_ID, "下载完成", "点击进行安装", smallIcon);
         } else {
             if (mOnFailListener != null)
                 mOnFailListener.onFail(mError);
-            if (!updateInfo.isForced)
-                notificationAgent.showErrorNotification(NotificationAgent.UPDATE_NOTIFY_ID, "下载出错", "点击继续下载", smallIcon);
+            notificationAgent.showErrorNotification(NotificationAgent.UPDATE_NOTIFY_ID, "下载出错", "点击继续下载", smallIcon);
         }
     }
 
