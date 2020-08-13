@@ -32,22 +32,20 @@
         <TextView
             android:id="@+id/tv_update_content"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_margin="10dp"
+            android:layout_height="170dp"
             android:lineSpacingExtra="5dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:textColor="#222222"
             android:textSize="15sp"
             app:layout_constraintTop_toBottomOf="@id/view_line3"
-            tools:text="• 支持文字、贴纸、背景音乐，尽情展现欢乐气氛；
-• 两人视频通话支持实时滤镜，丰富滤镜，多彩心情；
-• 图片编辑新增艺术滤镜，一键打造文艺画风；
-• 资料卡新增点赞排行榜，看好友里谁是魅力之王。" />
+            tools:text="• 支持文字、贴纸、背景音乐，尽情展现欢乐气氛；• 支持文字、贴纸、背景音乐，尽情展现欢乐气氛；• 支持文字、贴纸、背景音乐，尽情展现欢乐气氛；• 支持文字、贴纸、背景音乐，尽情展现欢乐气氛；• 支持文字、贴纸、背景音乐，尽情展现欢乐气氛；" />
+
 
         <View
             android:id="@+id/view_line1"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="20dp"
             android:background="#efefef"
             app:layout_constraintTop_toBottomOf="@id/tv_update_content" />
 

@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
@@ -85,6 +86,7 @@ public class NotificationAgent {
     public void showNotify(int notifyId, String title, String content, int icon) {
         NotificationManager manager = getNotificationManager();
         builder.setSmallIcon(icon)
+                .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(),icon))
                 .setContentTitle(title)
                 .setContentText(content);
         manager.notify(notifyId, builder.build());
